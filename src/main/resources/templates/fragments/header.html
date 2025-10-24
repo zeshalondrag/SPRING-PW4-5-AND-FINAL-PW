@@ -1,0 +1,386 @@
+<header th:fragment="header">
+  <style>
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: #ffffff;
+      color: #000;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    /* HEADER STRUCTURE */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 15px 0;
+    }
+
+    .logo {
+      color: #f21827;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 50px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #777;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #016fff;
+    }
+
+    .configurator-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #016fff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .configurator-btn:hover {
+      background: #005ed6;
+    }
+
+    .configurator-btn img {
+      width: 18px;
+      height: 18px;
+      filter: brightness(0) invert(1);
+    }
+
+    .separator {
+      height: 1px;
+      background: #eaf0f5;
+      margin: 0 300px;
+    }
+
+    /* Bottom header */
+    .bottom-header {
+      background: #fff;
+      padding: 15px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .catalog-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f21827;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      width: 160px;
+      height: 50px;
+      justify-content: space-between;
+    }
+
+    .catalog-btn:hover {
+      background: #c5121f;
+    }
+
+    .catalog-btn img {
+      width: 18px;
+      height: 18px;
+      filter: brightness(0) invert(1);
+    }
+
+    /* SEARCH */
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      margin: 0 70px;
+    }
+
+    .search-bar {
+      width: 700px;
+      padding: 20px 40px 8px 12px;
+      border: 1px solid #eaf0f5;
+      border-radius: 4px;
+      outline: none;
+      transition: all 0.3s;
+      font-size: 15px;
+      color: #000;
+      box-sizing: border-box;
+    }
+
+    .search-bar:focus {
+      border-color: #016fff;
+    }
+
+    /* Floating Label for Search */
+    .search-wrapper label {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 15px;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      background: #fff;
+      padding: 0 4px;
+    }
+
+    .search-wrapper input:focus + label,
+    .search-wrapper input:not(:placeholder-shown) + label {
+      top: 0;
+      font-size: 12px;
+      color: #016fff;
+    }
+    
+    .search-wrapper img {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ICONS PANEL */
+    .icons {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .icon-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #000;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .icon-block img {
+      width: 16px;
+      height: 16px;
+      margin-bottom: 4px;
+      opacity: 0.85;
+      cursor: pointer;
+    }
+
+    /* User Avatar in Header */
+    .user-avatar-header {
+      width: 19px;
+      height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c5121f 40%, #000 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* Sticky mini */
+    .sticky-mini {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Back to top */
+    #backToTop {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #fff;
+      color: #000;
+      border: .0625rem solid #eeeeee;
+      border-radius: 50%;
+      width: 2.5rem;
+      height: 2.5rem;
+      font-size: 20px;
+      cursor: pointer;
+      display: none;
+      transition: opacity 0.3s ease;
+      z-index: 9999;
+      box-shadow: 0 .0125rem .125rem #eeeeee;
+      transition: background-color .2s, border-color .2s, opacity .2s;
+    }
+
+    .backToTop img {
+      width: 16px;
+      height: 16px;
+    }
+  </style>
+
+  <div class="container">
+    <div class="top-header">
+      <img src="/icons/logo.png" alt="SORATECH" style="width: 160px; cursor: pointer;">
+      <nav class="nav-links">
+        <a href="#">О компании</a>
+        <a href="#">Доставка и оплата</a>
+        <a href="#">Самовывоз</a>
+        <a href="#">Гарантия и возврат</a>
+        <a href="#">FAQ</a>
+        <a href="#">Контакты</a>
+      </nav>
+      <button class="configurator-btn">
+        <img src="/icons/power-off.png" alt="выкл">
+        Конфигуратор ПК
+      </button>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <div class="bottom-header" id="stickyHeader">
+    <div class="container">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <button class="catalog-btn">
+          Каталог
+          <img src="/icons/menu.png" alt="каталог">
+        </button>
+
+        <div class="search-wrapper">
+          <input type="text" id="searchBar" class="search-bar" placeholder=" ">
+          <label for="searchBar">Название или ID товара</label>
+          <img src="/icons/search.png" alt="search">
+        </div>
+
+        <div class="icons">
+          <a class="icon-block" onclick="handleCabinetClick()" style="cursor: pointer;">
+            <!-- Иконка для неавторизованных -->
+            <img src="/icons/user.png" alt="cabinet" id="cabinetIcon" style="display: none;">
+            <!-- Аватарка для авторизованных -->
+            <div class="user-avatar-header" id="cabinetAvatar" style="display: none;">U</div>
+            Кабинет
+          </a>
+          
+          <a class="icon-block">
+            <img src="/icons/compare.png" alt="compare">
+            Сравнение
+          </a>
+          <a class="icon-block">
+            <img src="/icons/favourite.png" alt="favorite">
+            Избранное
+          </a>
+          <a class="icon-block">
+            <img src="/icons/grocery-store.png" alt="cart">
+            Корзина
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button id="backToTop" class="backToTop"><img src="/icons/arrow-up.png" alt="up"></button>
+
+  <script>
+    // Обновление иконки кабинета при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+      updateCabinetIcon();
+    });
+
+    // Функция обновления иконки кабинета
+    function updateCabinetIcon() {
+      const cabinetIcon = document.getElementById('cabinetIcon');
+      const cabinetAvatar = document.getElementById('cabinetAvatar');
+      
+      fetch('/api/auth/check', {
+        method: 'GET',
+        credentials: 'same-origin'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.authenticated && data.username) {
+          // Авторизован - показываем аватарку с первой буквой имени
+          if (cabinetIcon) cabinetIcon.style.display = 'none';
+          if (cabinetAvatar) {
+            cabinetAvatar.textContent = data.username.charAt(0).toUpperCase();
+            cabinetAvatar.style.display = 'flex';
+          }
+        } else {
+          // Не авторизован - показываем иконку user.png
+          if (cabinetIcon) cabinetIcon.style.display = 'block';
+          if (cabinetAvatar) cabinetAvatar.style.display = 'none';
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка проверки авторизации:', error);
+        // В случае ошибки показываем иконку user.png
+        if (cabinetIcon) cabinetIcon.style.display = 'block';
+        if (cabinetAvatar) cabinetAvatar.style.display = 'none';
+      });
+    }
+
+    // Функция обработки клика на "Кабинет"
+    function handleCabinetClick() {
+      // Делаем AJAX запрос для проверки авторизации
+      fetch('/api/auth/check', {
+        method: 'GET',
+        credentials: 'same-origin'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.authenticated) {
+          // Авторизован -> переход в профиль
+          window.location.href = '/profile';
+        } else {
+          // Не авторизован -> открытие модального окна
+          openModal('loginModal');
+        }
+      })
+      .catch(error => {
+        // В случае ошибки открываем модальное окно
+        console.error('Ошибка проверки авторизации:', error);
+        openModal('loginModal');
+      });
+    }
+
+    window.addEventListener("scroll", function () {
+      const btn = document.getElementById("backToTop");
+      const header = document.getElementById("stickyHeader");
+      if (window.scrollY > 300) {
+        btn.style.display = "block";
+        header.classList.add("sticky-mini");
+      } else {
+        btn.style.display = "none";
+        header.classList.remove("sticky-mini");
+      }
+    });
+
+    document.getElementById("backToTop").addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
+
+  <div th:insert="fragments/auth-reg-modals :: auth-reg-modals"></div>
+</header>

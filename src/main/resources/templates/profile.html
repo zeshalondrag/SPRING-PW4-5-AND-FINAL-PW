@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная - Личный кабинет - SORATECH</title>
+    <link rel="icon" type="image/png" href="/icons/logo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+        }
+
+        .profile-container {
+            max-width: 1300px;
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Left Panel */
+        .left-panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .user-info-header {
+            padding: 30px 20px 20px;
+            border-bottom: 1px solid #eaf0f5;
+            position: relative;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 50px;
+            left: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .notifications-btn {
+            position: absolute;
+            top: 50px;
+            left: 270px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .notifications-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .user-avatar {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c5121f 40%, #000 100%);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .user-nickname {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .user-email {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 15px;
+            color: #555;
+        }
+
+        .nav-tab:hover {
+            background: #f5f7fa;
+            color: #016fff;
+        }
+
+        .nav-tab.active {
+            background: #f5f7fa;
+            border-left-color: #c5121f;
+            font-weight: 600;
+        }
+
+        .nav-tab-icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaf0f5;
+        }
+
+        /* Form Styles */
+        .profile-form {
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #eaf0f5;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #016fff;
+        }
+
+        .form-group input:disabled {
+            background: #f5f7fa;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #016fff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #005ed6;
+        }
+
+        .btn-secondary {
+            background: #eaf0f5;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #dde5ec;
+        }
+
+        /* Orders Table */
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eaf0f5;
+        }
+
+        .orders-table th {
+            background: #f5f7fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* Address Card */
+        .address-card {
+            border: 3px solid transparent;
+            padding: 20px;
+            position: relative;
+        }
+
+        .address-card.default {
+            border-left-color: #c5121f;
+            background: #f5f7fa;
+        }
+
+        .address-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .btn-icon:hover {
+            color: #016fff;
+        }
+
+        /* Review Card */
+        .review-card {
+            border: 1px solid #eaf0f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .review-product {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .review-rating {
+            color: #f39c12;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .review-text {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Role Badge */
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .role-admin {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .role-manager {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .role-client {
+            background: #cfe2ff;
+            color: #084298;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div th:insert="fragments/header :: header"></div>
+
+    <!-- Profile Container -->
+    <div class="profile-container">
+        <!-- Left Panel -->
+        <aside class="left-panel">
+            <div class="user-info-header">
+                <form action="/perform_logout" method="post" style="display: inline;">
+                    <button type="submit" class="logout-btn" title="Выйти">
+                        <img src="/icons/logout.png" alt="logout">
+                    </button>
+                </form>
+
+                <form action="/notifications" method="post" style="display: inline;">
+                    <button type="submit" class="notifications-btn" title="Уведомления">
+                        <img src="/icons/bell.png" alt="notifications">
+                    </button>
+                </form>
+                
+                <div class="user-avatar" th:text="${user.email.substring(0,1).toUpperCase()}">U</div>
+                <div class="user-nickname" th:text="${user.name}">Пользователь</div>
+                <div class="user-email" th:text="${user.email}">user@example.com</div>
+            </div>
+
+            <ul class="nav-tabs">
+                <li class="nav-tab active" data-tab="settings">
+                    <img src="/icons/user.png" alt="settings" style="width: 16px; height: 16px;">
+                    <span>Настройки профиля</span>
+                </li>
+                <li class="nav-tab" data-tab="orders">
+                    <img src="/icons/grocery-store.png" alt="orders" style="width: 16px; height: 16px;">
+                    <span>Заказы</span>
+                </li>
+                <li class="nav-tab" data-tab="addresses">
+                    <img src="/icons/location.png" alt="addresses" style="width: 16px; height: 16px;">
+                    <span>Адрес доставки</span>
+                </li>
+                <li class="nav-tab" data-tab="reviews">
+                    <img src="/icons/like.png" alt="reviews" style="width: 16px; height: 16px;">
+                    <span>Активность в сообществе</span>
+                </li>
+                <li class="nav-tab" id="adminPanelTab" data-tab="admin" style="border-top: 1px solid #eaf0f5; display: none;">
+                    <img src="/icons/settings.png" alt="settings" style="width: 16px; height: 16px;">
+                    <span>Панель администратора</span>
+                </li>
+                <li class="nav-tab" id="managerPanelTab" data-tab="manager" style="border-top: 1px solid #eaf0f5; display: none;">
+                    <img src="/icons/settings.png" alt="settings" style="width: 16px; height: 16px;">
+                    <span>Панель менеджера</span>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Right Panel -->
+        <main class="right-panel">
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-content active">
+                <h2 class="tab-title">Настройки профиля</h2>
+                <form class="profile-form" method="post" action="/profile/update">
+                    <div class="form-group">
+                        <label for="name">Имя</label>
+                        <input type="text" id="name" name="name" th:value="${user.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" th:value="${user.email}" disabled>
+                        <small style="color: #999; font-size: 12px;">Email нельзя изменить</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Телефон</label>
+                        <input type="tel" id="phone" name="phone" th:value="${user.phone}" pattern="^\+?[0-9]{10,15}$">
+                    </div>
+                    <div class="form-group">
+                        <label for="currentPassword">Текущий пароль</label>
+                        <input type="password" id="currentPassword" name="currentPassword" placeholder="Введите текущий пароль для изменения">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Новый пароль</label>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="Оставьте пустым, если не хотите менять">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Подтвердите новый пароль</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Повторите новый пароль">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="orders" class="tab-content">
+                <h2 class="tab-title">История заказов</h2>
+                <div th:if="${#lists.isEmpty(user.orders)}">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><img src="/icons/grocery-store.png" alt="orders" style="width: 65px; height: 65px;"></div>
+                        <p>У вас пока нет заказов</p>
+                    </div>
+                </div>
+                <table class="orders-table" th:if="${!#lists.isEmpty(user.orders)}">
+                    <thead>
+                        <tr>
+                            <th>№ Заказа</th>
+                            <th>Дата</th>
+                            <th>Сумма</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${user.orders}">
+                            <td th:text="'#' + ${order.id}">#123</td>
+                            <td th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2024</td>
+                            <td th:text="${order.totalAmount} + ' ₽'">1000 ₽</td>
+                            <td>
+                                <span class="order-status" 
+                                      th:classappend="${order.status == 'PENDING' ? 'status-pending' : 
+                                                       order.status == 'PROCESSING' ? 'status-processing' : 
+                                                       order.status == 'COMPLETED' ? 'status-completed' : 'status-cancelled'}"
+                                      th:text="${order.status}">Обрабатывается</span>
+                            </td>
+                            <td>
+                                <a href="#" class="btn-icon">👁️</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Addresses Tab -->
+            <div id="addresses" class="tab-content">
+                <h2 class="tab-title">Адреса доставки</h2>
+                <div class="address-card default">
+                    <div class="address-actions">
+                        <button class="btn-icon" title="Редактировать"><img src="/icons/edit.png" alt="edit" style="width: 16px; height: 16px;"></button>
+                        <button class="btn-icon" title="Удалить"><img src="/icons/trash.png" alt="delete" style="width: 16px; height: 16px;"></button>
+                    </div>
+                    <div style="font-weight: 600;">Основной адрес</div>
+                    <div th:text="${user.address}" style="color: #555;">Адрес не указан</div>
+                </div>
+                <button class="btn btn-primary" style="margin-top: 15px;">Добавить адрес</button>
+            </div>
+
+            <!-- Reviews Tab -->
+            <div id="reviews" class="tab-content">
+                <h2 class="tab-title">Мои отзывы</h2>
+                <div th:if="${#lists.isEmpty(user.reviews)}">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><img src="/icons/like.png" alt="reviews" style="width: 65px; height: 65px;"></div>
+                        <p>Вы еще не оставили ни одного отзыва</p>
+                    </div>
+                </div>
+                <div th:if="${!#lists.isEmpty(user.reviews)}">
+                    <div class="review-card" th:each="review : ${user.reviews}">
+                        <div class="review-header">
+                            <span class="review-product" th:text="${review.product.name}">Товар</span>
+                            <span class="review-rating">
+                                <th:block th:each="i : ${#numbers.sequence(1, review.rating)}">
+                                    <img src="/icons/star.png" alt="star" style="width:16px; height:16px;">
+                                </th:block>
+                            </span>                            
+                        </div>
+                        <div class="review-date" th:text="${#temporals.format(review.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2024</div>
+                        <div class="review-text" th:text="${review.comment}">Текст отзыва</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <div th:insert="~{fragments/footer :: footer}"></div>
+
+    <!-- Session Timeout -->
+    <div th:replace="~{fragments/session-timeout :: session-timeout}"></div>
+
+    <script>
+        // Проверка ролей и отображение соответствующих вкладок
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/auth/check', {
+                method: 'GET',
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.authenticated && data.roles) {
+                    const roles = data.roles;
+                    
+                    // Проверяем наличие роли "Администратор"
+                    if (roles.includes('ROLE_Администратор')) {
+                        const adminTab = document.getElementById('adminPanelTab');
+                        if (adminTab) {
+                            adminTab.style.display = 'flex';
+                        }
+                    }
+                    
+                    // Проверяем наличие роли "Менеджер"
+                    if (roles.includes('ROLE_Менеджер')) {
+                        const managerTab = document.getElementById('managerPanelTab');
+                        if (managerTab) {
+                            managerTab.style.display = 'flex';
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка проверки ролей:', error);
+            });
+        });
+
+        // Tab switching
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+                
+                // Special handling for admin and manager tabs
+                if (tabName === 'admin') {
+                    window.location.href = '/admin';
+                    return;
+                }
+                if (tabName === 'manager') {
+                    window.location.href = '/manager';
+                    return;
+                }
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
+

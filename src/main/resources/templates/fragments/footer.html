@@ -1,0 +1,108 @@
+<footer th:fragment="footer">
+  <style>
+    footer {
+      background: #eaf0f5;
+      padding: 40px 0;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 200px;
+    }
+
+    .footer-col a {
+      color: #000;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+
+    .footer-col a:hover {
+      color: #016fff;
+    }
+
+    .callback {
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+    }
+
+    .callback img {
+        width: 16px;
+        height: 16px;
+        margin-right: 10px;
+    }
+
+    .socials a {
+      margin-right: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      color: #000;
+    }
+
+    .socials a:hover {
+      color: #016fff;
+    }
+
+    .payments img {
+      height: 26px;
+      margin-right: 10px;
+    }
+
+    .footer-col small {
+      color: #555;
+      font-size: 13px;
+    }
+  </style>
+
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-col">
+        <p style="font-weight: 600;">+7 (999) 123-45-67</p>
+        <p style="font-weight: 600;">8 (800) 555-35-35</p>
+        <small>Бесплатно по России</small>
+        <a href="#" class="callback" style="color: #016fff;"><img src="/icons/phone-call.png">Перезвоните мне</a>
+      </div>
+
+      <div class="footer-col">
+        <a href="#">О компании</a>
+        <a href="#">Доставка и оплата</a>
+        <a href="#">Самовывоз</a>
+        <a href="#">Гарантия и возврат</a>
+        <a href="#">FAQ</a>
+        <div class="socials">
+          <a href="#"><img src="/icons/vk.png" alt="VK" style="width:32px;vertical-align:middle;"> VK</a>
+          <a href="#"><img src="/icons/telegram.png" alt="Telegram" style="width:32px;vertical-align:middle;"> Telegram</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <a href="#">Конфигуратор ПК</a>
+        <a href="#">Каталог конфигурации</a>
+        <a href="#">Что с моим заказом?</a>
+        <a href="#">Вакансии</a>
+        <a href="#">Обратная связь</a>
+        <div class="payments">
+          <img src="/icons/mastercard.png" alt="mastercard">
+          <img src="/icons/mir.svg" alt="mir">
+          <img src="/icons/tbank.png" alt="t-bank">
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
