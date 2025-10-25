@@ -1,166 +1,133 @@
 package com.example.soratech.exception;
 
-import com.example.soratech.dto.ErrorResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
-@ControllerAdvice
+/**
+ * Глобальный обработчик исключений для REST API
+ * Перехватывает и форматирует все ошибки в единый JSON формат
+ */
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * Обработка ошибок валидации
+     * Обработка ошибок валидации (@Valid)
+     * Возвращает 400 Bad Request с детальным описанием ошибок валидации
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(
-            MethodArgumentNotValidException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
         
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation Error",
-                "Ошибка валидации входных данных",
-                request.getRequestURI()
-        );
-
-        List<ErrorResponse.ValidationError> validationErrors = new ArrayList<>();
+        Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
-            validationErrors.add(new ErrorResponse.ValidationError(fieldName, errorMessage));
+            errors.put(fieldName, errorMessage);
         });
-
-        errorResponse.setValidationErrors(validationErrors);
-        return ResponseEntity.badRequest().body(errorResponse);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("timestamp", LocalDateTime.now());
+        response.put("message", "Ошибка валидации данных");
+        response.put("errors", errors);
+        
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
+    
     /**
-     * Обработка ResourceNotFoundException
+     * Обработка кастомного исключения ResourceNotFoundException
+     * Возвращает 404 Not Found
      */
     @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
-            ResourceNotFoundException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(
+            ResourceNotFoundException ex, WebRequest request) {
         
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("timestamp", LocalDateTime.now());
+        response.put("message", ex.getMessage());
+        response.put("path", request.getDescription(false).replace("uri=", ""));
+        
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
-
+    
     /**
-     * Обработка InvalidRequestException
+     * Обработка ошибок аутентификации
+     * Возвращает 401 Unauthorized
      */
-    @ExceptionHandler(InvalidRequestException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleInvalidRequestException(
-            InvalidRequestException ex,
-            HttpServletRequest request) {
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthenticationException(
+            AuthenticationException ex) {
         
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.badRequest().body(errorResponse);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("timestamp", LocalDateTime.now());
+        response.put("message", "Ошибка аутентификации: " + ex.getMessage());
+        
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
-
+    
     /**
-     * Обработка UnauthorizedException
+     * Обработка ошибок доступа (нет прав)
+     * Возвращает 403 Forbidden
      */
-    @ExceptionHandler(UnauthorizedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(
-            UnauthorizedException ex,
-            HttpServletRequest request) {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(
+            AccessDeniedException ex) {
         
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                "Unauthorized",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-    }
-
-    /**
-     * Обработка ForbiddenException
-     */
-    @ExceptionHandler(ForbiddenException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseEntity<ErrorResponse> handleForbiddenException(
-            ForbiddenException ex,
-            HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("timestamp", LocalDateTime.now());
+        response.put("message", "Доступ запрещен: " + ex.getMessage());
         
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.FORBIDDEN.value(),
-                "Forbidden",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
-
+    
     /**
      * Обработка IllegalArgumentException
+     * Возвращает 400 Bad Request
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
-            IllegalArgumentException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(
+            IllegalArgumentException ex) {
         
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.badRequest().body(errorResponse);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("timestamp", LocalDateTime.now());
+        response.put("message", "Некорректные данные: " + ex.getMessage());
+        
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
+    
     /**
-     * Обработка всех остальных исключений
+     * Обработка всех остальных ошибок
+     * Возвращает 500 Internal Server Error
      */
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleGlobalException(
-            Exception ex,
-            HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> handleGlobalException(
+            Exception ex, WebRequest request) {
         
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "Произошла внутренняя ошибка сервера: " + ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        // Логирование ошибки
-        ex.printStackTrace();
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("timestamp", LocalDateTime.now());
+        response.put("message", "Внутренняя ошибка сервера");
+        response.put("details", ex.getMessage());
+        response.put("path", request.getDescription(false).replace("uri=", ""));
+        
+        // В продакшене лучше не показывать детали ошибки
+        // response.put("details", "Обратитесь к администратору");
+        
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
-
-
-
-

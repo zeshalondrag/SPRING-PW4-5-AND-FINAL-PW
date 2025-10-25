@@ -750,7 +750,7 @@
         const entityConfig = {
             users: {
                 title: 'Таблица: Пользователи',
-                endpoint: '/users',
+                endpoint: '/api/admin/users',
                 columns: ['ID', 'Email', 'Имя', 'Телефон', 'Роль', 'Активен', 'Действия'],
                 fields: ['id', 'email', 'name', 'phone', 'role.name', 'active'],
                 searchField: 'query',
@@ -764,21 +764,21 @@
             },
             roles: {
                 title: 'Таблица: Роли',
-                endpoint: '/roles',
+                endpoint: '/api/admin/roles',
                 columns: ['ID', 'Название', 'Описание', 'Действия'],
                 fields: ['id', 'name', 'description'],
                 searchField: 'query'
             },
             categories: {
                 title: 'Таблица: Категории',
-                endpoint: '/categories',
+                endpoint: '/api/admin/categories',
                 columns: ['ID', 'Название', 'Описание', 'Действия'],
                 fields: ['id', 'name', 'description'],
                 searchField: 'query'
             },
             manufacturers: {
                 title: 'Таблица:Производители',
-                endpoint: '/manufacturers',
+                endpoint: '/api/admin/manufacturers',
                 columns: ['ID', 'Название', 'Страна', 'Email', 'Телефон', 'Действия'],
                 fields: ['id', 'name', 'country', 'email', 'phone'],
                 searchField: 'query',
@@ -788,21 +788,21 @@
             },
             suppliers: {
                 title: 'Таблица: Поставщики',
-                endpoint: '/suppliers',
+                endpoint: '/api/admin/suppliers',
                 columns: ['ID', 'Название', 'Контактное лицо', 'Email', 'Телефон', 'Действия'],
                 fields: ['id', 'name', 'contactPerson', 'email', 'phone'],
                 searchField: 'query'
             },
             productdetails: {
                 title: 'Таблица: Детали товаров',
-                endpoint: '/productdetails',
+                endpoint: '/api/admin/productdetails',
                 columns: ['ID', 'Товар', 'Название характеристики', 'Значение характеристики', 'Действия'],
                 fields: ['id', 'product.name', 'characteristicName', 'characteristicValue'],
                 searchField: 'query'
             },
             products: {
                 title: 'Таблица: Товары',
-                endpoint: '/products',
+                endpoint: '/api/admin/products',
                 columns: ['ID', 'Название', 'Цена', 'Количество', 'Категория', 'Производитель', 'Действия'],
                 fields: ['id', 'name', 'price', 'stockQuantity', 'category.name', 'manufacturer.name'],
                 searchField: 'query',
@@ -813,7 +813,7 @@
             },
             orders: {
                 title: 'Таблица: Заказы',
-                endpoint: '/orders',
+                endpoint: '/api/admin/orders',
                 columns: ['ID', 'Пользователь', 'Сумма', 'Статус', 'Дата создания', 'Действия'],
                 fields: ['id', 'user.name', 'totalAmount', 'status', 'createdAt'],
                 searchField: 'query',
@@ -831,7 +831,7 @@
             },
             reviews: {
                 title: 'Таблица: Отзывы',
-                endpoint: '/reviews',
+                endpoint: '/api/admin/reviews',
                 columns: ['ID', 'Товар', 'Пользователь', 'Рейтинг', 'Комментарий', 'Дата', 'Действия'],
                 fields: ['id', 'product.name', 'user.name', 'rating', 'comment', 'createdAt'],
                 searchField: 'query',
@@ -1611,7 +1611,6 @@
                 return;
             }
             
-            const formData = new FormData(form);
             const data = {};
             
             formFieldsConfig[currentEntity].forEach(field => {
@@ -1626,27 +1625,32 @@
             });
             
             try {
-                const config = entityConfig[currentEntity];
                 const url = currentEditId ? 
-                    `${config.endpoint}/edit/${currentEditId}` : 
-                    `${config.endpoint}/create`;
+                    `/api/admin/${currentEntity}/${currentEditId}` : 
+                    `/api/admin/${currentEntity}`;
                 
-                const formElement = document.createElement('form');
-                formElement.method = 'POST';
-                formElement.action = url;
+                const method = currentEditId ? 'PUT' : 'POST';
                 
-                Object.keys(data).forEach(key => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = data[key];
-                    formElement.appendChild(input);
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
                 });
                 
-                document.body.appendChild(formElement);
-                formElement.submit();
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal('crudModal');
+                    await fetchData();
+                    alert(currentEditId ? 'Запись успешно обновлена!' : 'Запись успешно создана!');
+                } else {
+                    alert('Ошибка: ' + (result.message || 'Неизвестная ошибка'));
+                }
                 
             } catch (error) {
+                console.error('Error:', error);
                 alert('Ошибка при сохранении: ' + error.message);
             }
         }
@@ -1665,27 +1669,61 @@
         }
 
         // Confirm delete
-        function confirmDelete() {
-            const config = entityConfig[currentEntity];
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = currentDeletePermanent ? 
-                `${config.endpoint}/delete/${currentDeleteId}` : 
-                `${config.endpoint}/logic-delete/${currentDeleteId}`;
-            
-            document.body.appendChild(form);
-            form.submit();
+        async function confirmDelete() {
+            try {
+                const url = currentDeletePermanent ? 
+                    `/api/admin/${currentEntity}/${currentDeleteId}` : 
+                    `/api/admin/${currentEntity}/logic-delete/${currentDeleteId}`;
+                
+                const method = currentDeletePermanent ? 'DELETE' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal('deleteModal');
+                    await fetchData();
+                    alert(currentDeletePermanent ? 'Запись удалена безвозвратно!' : 'Запись помечена как удаленная!');
+                } else {
+                    alert('Ошибка: ' + (result.message || 'Неизвестная ошибка'));
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ошибка при удалении: ' + error.message);
+            }
         }
 
         // Restore item
-        function restoreItem(id) {
+        async function restoreItem(id) {
             if (confirm('Вы уверены, что хотите восстановить этот элемент?')) {
-                const config = entityConfig[currentEntity];
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `${config.endpoint}/restore/${id}`;
-                document.body.appendChild(form);
-                form.submit();
+                try {
+                    const response = await fetch(`/api/admin/${currentEntity}/restore/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        await fetchData();
+                        alert('Запись успешно восстановлена!');
+                    } else {
+                        alert('Ошибка: ' + (result.message || 'Неизвестная ошибка'));
+                    }
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Ошибка при восстановлении: ' + error.message);
+                }
             }
         }
 

@@ -25,6 +25,20 @@ public class ApiResponse<T> {
         return new ApiResponse<>(content, currentPage, totalPages, totalElements);
     }
 
+    public static <T> ApiResponse<T> success(T data) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setContent(java.util.Collections.singletonList(data));
+        return response;
+    }
+    
+    public static <T> ApiResponse<T> success(String message) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setMessage(message);
+        return response;
+    }
+    
     public static <T> ApiResponse<T> error(String message) {
         ApiResponse<T> response = new ApiResponse<>();
         response.setSuccess(false);

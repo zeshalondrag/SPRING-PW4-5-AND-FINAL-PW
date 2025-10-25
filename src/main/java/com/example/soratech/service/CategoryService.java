@@ -31,6 +31,3 @@ public interface CategoryService {
     
     void restore(Long id);
 }
-
-
-

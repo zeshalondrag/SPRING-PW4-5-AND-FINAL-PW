@@ -730,14 +730,14 @@
         const entityConfig = {
             productdetails: {
                 title: 'Таблица: Детали товаров',
-                endpoint: '/productdetails',
+                endpoint: '/api/manager/productdetails',
                 columns: ['ID', 'Товар', 'Название характеристики', 'Значение характеристики', 'Действия'],
                 fields: ['id', 'product.name', 'characteristicName', 'characteristicValue'],
                 searchField: 'query'
             },
             products: {
                 title: 'Таблица: Товары',
-                endpoint: '/products',
+                endpoint: '/api/manager/products',
                 columns: ['ID', 'Название', 'Цена', 'Количество', 'Категория', 'Производитель', 'Действия'],
                 fields: ['id', 'name', 'price', 'stockQuantity', 'category.name', 'manufacturer.name'],
                 searchField: 'query',
@@ -748,7 +748,7 @@
             },
             orders: {
                 title: 'Таблица: Заказы',
-                endpoint: '/orders',
+                endpoint: '/api/manager/orders',
                 columns: ['ID', 'Пользователь', 'Сумма', 'Статус', 'Дата создания', 'Действия'],
                 fields: ['id', 'user.name', 'totalAmount', 'status', 'createdAt'],
                 searchField: 'query',
@@ -766,7 +766,7 @@
             },
             reviews: {
                 title: 'Таблица: Отзывы',
-                endpoint: '/reviews',
+                endpoint: '/api/manager/reviews',
                 columns: ['ID', 'Товар', 'Пользователь', 'Рейтинг', 'Комментарий', 'Дата', 'Действия'],
                 fields: ['id', 'product.name', 'user.name', 'rating', 'comment', 'createdAt'],
                 searchField: 'query',
@@ -1515,7 +1515,6 @@
                 return;
             }
             
-            const formData = new FormData(form);
             const data = {};
             
             formFieldsConfig[currentEntity].forEach(field => {
@@ -1530,27 +1529,32 @@
             });
             
             try {
-                const config = entityConfig[currentEntity];
                 const url = currentEditId ? 
-                    `${config.endpoint}/edit/${currentEditId}` : 
-                    `${config.endpoint}/create`;
+                    `/api/manager/${currentEntity}/${currentEditId}` : 
+                    `/api/manager/${currentEntity}`;
                 
-                const formElement = document.createElement('form');
-                formElement.method = 'POST';
-                formElement.action = url;
+                const method = currentEditId ? 'PUT' : 'POST';
                 
-                Object.keys(data).forEach(key => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = data[key];
-                    formElement.appendChild(input);
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
                 });
                 
-                document.body.appendChild(formElement);
-                formElement.submit();
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal('crudModal');
+                    await fetchData();
+                    alert(currentEditId ? 'Запись успешно обновлена!' : 'Запись успешно создана!');
+                } else {
+                    alert('Ошибка: ' + (result.message || 'Неизвестная ошибка'));
+                }
                 
             } catch (error) {
+                console.error('Error:', error);
                 alert('Ошибка при сохранении: ' + error.message);
             }
         }
@@ -1569,27 +1573,61 @@
         }
 
         // Confirm delete
-        function confirmDelete() {
-            const config = entityConfig[currentEntity];
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = currentDeletePermanent ? 
-                `${config.endpoint}/delete/${currentDeleteId}` : 
-                `${config.endpoint}/logic-delete/${currentDeleteId}`;
-            
-            document.body.appendChild(form);
-            form.submit();
+        async function confirmDelete() {
+            try {
+                const url = currentDeletePermanent ? 
+                    `/api/manager/${currentEntity}/${currentDeleteId}` : 
+                    `/api/manager/${currentEntity}/logic-delete/${currentDeleteId}`;
+                
+                const method = currentDeletePermanent ? 'DELETE' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal('deleteModal');
+                    await fetchData();
+                    alert(currentDeletePermanent ? 'Запись удалена безвозвратно!' : 'Запись помечена как удаленная!');
+                } else {
+                    alert('Ошибка: ' + (result.message || 'Неизвестная ошибка'));
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ошибка при удалении: ' + error.message);
+            }
         }
 
         // Restore item
-        function restoreItem(id) {
+        async function restoreItem(id) {
             if (confirm('Вы уверены, что хотите восстановить этот элемент?')) {
-                const config = entityConfig[currentEntity];
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `${config.endpoint}/restore/${id}`;
-                document.body.appendChild(form);
-                form.submit();
+                try {
+                    const response = await fetch(`/api/manager/${currentEntity}/restore/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        await fetchData();
+                        alert('Запись успешно восстановлена!');
+                    } else {
+                        alert('Ошибка: ' + (result.message || 'Неизвестная ошибка'));
+                    }
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Ошибка при восстановлении: ' + error.message);
+                }
             }
         }
 
